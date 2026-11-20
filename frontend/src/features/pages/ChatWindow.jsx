@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Loader2, MessageSquare } from 'lucide-react';
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function ChatWindow({ threadId, messages, setMessages }) {
 
@@ -19,7 +20,7 @@ export default function ChatWindow({ threadId, messages, setMessages }) {
         setLoading(true);
 
         const response = await axios.get(
-          `http://localhost:8000/get_thread_history/${encodeURIComponent(threadId)}`
+          `${API_URL}/get_thread_history/${encodeURIComponent(threadId)}`
         );
 
         if (cancelled) return;
