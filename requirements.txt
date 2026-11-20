@@ -40,3 +40,4 @@ requests
 
 langchain-huggingface
 sentence-transformers
+mcp
