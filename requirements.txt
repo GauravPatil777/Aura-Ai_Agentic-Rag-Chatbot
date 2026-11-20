@@ -1,0 +1,39 @@
+# Backend
+fastapi
+uvicorn[standard]
+python-multipart
+
+# Environment
+python-dotenv
+
+# LangChain
+langchain
+langchain-core
+langchain-community
+langchain-google-genai
+langchain-chroma
+
+# LangGraph
+langgraph
+langgraph-checkpoint-postgres
+
+# Monitoring
+langsmith
+
+# NeMo Guardrails
+nemoguardrails
+
+# Vector Database
+chromadb
+
+# PostgreSQL
+psycopg[binary,pool]
+
+# PDF Processing
+pypdf
+
+# Search Tools
+duckduckgo-search
+
+# HTTP Requests
+requests

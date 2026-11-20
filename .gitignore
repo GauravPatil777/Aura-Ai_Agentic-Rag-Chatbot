@@ -1,0 +1,119 @@
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Python packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Testing and coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log
+logs/
+
+# React / Node
+node_modules/
+frontend/node_modules/
+frontend/dist/
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Build artifacts
+dist/
+build/
+
+# Docker
+.docker/
+
+# PostgreSQL backups
+*.sql
+*.dump
+*.backup
+
+# Database files
+*.db
+*.sqlite3
+
+# ChromaDB / Vector database
+chroma_db/
+chroma/
+vectorstore/
+.vectordb/
+
+# Uploaded documents
+uploads/
+*.pdf
+
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# LangChain / LangGraph
+.langchain/
+.langgraph/
+
+# Jupyter
+.ipynb_checkpoints/
+EOF
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# DeepEval generated cache
+.deepeval/
+evaluation/.deepeval/
+
+# Evaluation generated results
+evaluation/results/
+evaluation/reports/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtual environments
+.venv/
+venv/
+
+# Node
+node_modules/
+frontend/node_modules/
+frontend/dist/
+
+# Logs
+*.log
+
+# Database files
+*.db
+*.sqlite3
+*.dump
+*.backup
