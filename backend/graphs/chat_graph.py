@@ -52,27 +52,27 @@ retrieval_contexts = {}
  
 app=FastAPI()
 
-def save_evaluation_interaction(
-    user_inp,
-    ai_response,
-    retrieval_context
-):
-    with pool.connection() as conn:
-        with conn.cursor() as cursor:
+# def save_evaluation_interaction(
+#     user_inp,
+#     ai_response,
+#     retrieval_context
+# ):
+#     with pool.connection() as conn:
+#         with conn.cursor() as cursor:
 
-            cursor.execute("""
-                INSERT INTO evaluation_interactions
-                (user_input, ai_response, retrieval_context)
-                VALUES (%s, %s, %s)
-            """, (
-                user_inp,
-                ai_response,
-                json.dumps(retrieval_context)
-            ))
+#             cursor.execute("""
+#                 INSERT INTO evaluation_interactions
+#                 (user_input, ai_response, retrieval_context)
+#                 VALUES (%s, %s, %s)
+#             """, (
+#                 user_inp,
+#                 ai_response,
+#                 json.dumps(retrieval_context)
+#             ))
 
-        conn.commit()
+#         conn.commit()
 
-    print("Evaluation interaction saved successfully!")
+#     print("Evaluation interaction saved successfully!")
     
 def get_retrieval_context(thread_id):
     return retrieval_contexts.get(thread_id, [])

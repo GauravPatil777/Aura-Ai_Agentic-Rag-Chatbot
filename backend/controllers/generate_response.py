@@ -35,11 +35,11 @@ def generate_response(request: ChatRequest):
     
     ai_response = response["messages"][-1].text
     retrieval_context=get_retrieval_context(thread_id)
-    save_evaluation_interaction(
-        user_inp,
-        ai_response,
-        retrieval_context
-    )
+    # save_evaluation_interaction(
+    #     user_inp,
+    #     ai_response,
+    #     retrieval_context
+    # )
     return {
         "user_input": user_inp,
         "ai_response": ai_response,
