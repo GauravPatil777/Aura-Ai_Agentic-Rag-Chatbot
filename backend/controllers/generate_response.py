@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException
 load_dotenv()
 from langchain_core.messages import HumanMessage
 from pydantic import BaseModel
-from graphs.chat_graph import workflow,set_current_thread,get_retrieval_context,save_evaluation_interaction
+from graphs.chat_graph import workflow,set_current_thread,get_retrieval_context
 from controllers.save_thread import save_thread_name
 
 class ChatRequest(BaseModel):
