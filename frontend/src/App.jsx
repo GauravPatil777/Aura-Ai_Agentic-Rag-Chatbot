@@ -1,110 +1,301 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 import Sidebar from './features/pages/Sidebar';
 import ChatWindow from './features/pages/ChatWindow';
 import InputDock from './features/pages/InputDock';
 
-import { Sparkles, Bot } from 'lucide-react';
+import './App.css';
+import { Sparkles, Loader2, UserRound } from 'lucide-react';
+
+const API_URL = import.meta.env.VITE_API_URL;
+
+axios.defaults.withCredentials = true;
 
 export default function App() {
 
-  // Active conversation
-  const [activeSessionId, setActiveSessionId] = useState(
-    () => crypto.randomUUID()
-  );
+    const [user, setUser] = useState(null);
+    const [authLoading, setAuthLoading] = useState(true);
+    const [guestLoading, setGuestLoading] = useState(false);
 
-  const [activeSessionName, setActiveSessionName] = useState("New Chat")
-  const [messages, setMessages] = useState([]);
-  const [refreshThreads, setRefreshThreads] = useState(0);
+    const [activeSessionId, setActiveSessionId] = useState(
+        () => crypto.randomUUID()
+    );
 
-  // Add messages to conversation
-  const handleSendMessage = (message) => {
-    setMessages(prev => [...prev, message]);
-  };
+    const [activeSessionName, setActiveSessionName] = useState("New Chat");
+    const [messages, setMessages] = useState([]);
+    const [refreshThreads, setRefreshThreads] = useState(0);
 
-  // Create new conversation
-  const handleNewChat = () => {
+    // Restore existing session
+    useEffect(() => {
 
-    const newThreadId = crypto.randomUUID();
+        const checkAuth = async () => {
 
-    setMessages([]);
-    setActiveSessionId(newThreadId);
-    // setActiveSessionName("New Chat")
+            try {
 
-    console.log("New thread created:", newThreadId);
-  };
+                const response = await axios.get(
+                    `${API_URL}/auth/me`
+                );
 
-  // Open existing conversation
-  const handleSelectSession = (threadId,thread_name) => {
+                setUser(response.data);
 
-    setMessages([]);
-    setActiveSessionId(threadId);
-    setActiveSessionName(thread_name)
-  };
+            } catch (error) {
 
-  return (
+                if (error.response?.status !== 401) {
+                    console.error("Authentication check failed:", error);
+                }
 
-    <div className="flex h-screen w-screen bg-[#f8f7f4] font-sans overflow-hidden text-[#1c241d]">
+                setUser(null);
 
-      {/* Sidebar */}
-      <Sidebar
-        activeSessionId={activeSessionId}
-        onSelectSession={handleSelectSession}
-        onNewChat={handleNewChat}
-        refreshThreads={refreshThreads}
-      />
+            } finally {
 
-      {/* Main Chat Canvas */}
-      <div className="flex-1 flex flex-col min-w-0 h-screen">
+                setAuthLoading(false);
 
-        {/* Conversation Header */}
-        <header className="h-14 px-6 border-b border-[#e5e3dc] flex items-center justify-between bg-[#f8f7f4] shrink-0">
+            }
 
-          {/* Left Section */}
-          <div className="flex items-center gap-3 min-w-0">
+        };
 
-            <div className="w-8 h-8 rounded-lg bg-[#e8e6df] flex items-center justify-center shrink-0">
+        checkAuth();
 
-              <Sparkles
-                size={17}
-                className="text-[#4a7c59]"
-              />
+    }, []);
+
+    // Google login
+    const handleGoogleLogin = () => {
+
+        window.location.href = `${API_URL}/auth/google`;
+
+    };
+
+    // Guest login
+    const handleGuestLogin = async () => {
+
+        try {
+
+            setGuestLoading(true);
+
+            const response = await axios.post(
+                `${API_URL}/auth/guest`
+            );
+
+            setUser(response.data);
+
+        } catch (error) {
+
+            console.error("Guest login failed:", error);
+
+            alert(
+                error.response?.data?.detail ||
+                "Unable to continue as guest."
+            );
+
+        } finally {
+
+            setGuestLoading(false);
+
+        }
+
+    };
+
+    // Logout
+    const handleLogout = async () => {
+
+        try {
+
+            await axios.post(`${API_URL}/auth/logout`);
+
+        } catch (error) {
+
+            console.error("Logout failed:", error);
+
+        } finally {
+
+            setUser(null);
+            setMessages([]);
+            setActiveSessionId(crypto.randomUUID());
+            setActiveSessionName("New Chat");
+
+        }
+
+    };
+
+    // Add messages
+    const handleSendMessage = (message) => {
+
+        setMessages(prev => [...prev, message]);
+
+    };
+
+    // Create new conversation
+    const handleNewChat = () => {
+
+        const newThreadId = crypto.randomUUID();
+
+        setMessages([]);
+        setActiveSessionId(newThreadId);
+        setActiveSessionName("New Chat");
+
+    };
+
+    // Open existing conversation
+    const handleSelectSession = (threadId, threadName) => {
+
+        setMessages([]);
+        setActiveSessionId(threadId);
+        setActiveSessionName(threadName);
+
+    };
+
+    // Authentication loading screen
+    if (authLoading) {
+
+        return (
+            <div className="h-screen flex items-center justify-center bg-[#f8f7f4]">
+
+                <Loader2
+                    size={32}
+                    className="animate-spin text-[#4a7c59]"
+                />
+
+            </div>
+        );
+
+    }
+
+    // Login screen
+    if (!user) {
+
+        return (
+
+            <div className="h-screen flex items-center justify-center bg-[#f8f7f4] px-5">
+
+                <div className="w-full max-w-md bg-white border border-[#e5e3dc] rounded-2xl p-8 shadow-sm text-center">
+
+                    <div className="w-16 h-16 mx-auto rounded-2xl bg-[#3b5e43] text-white flex items-center justify-center mb-5">
+
+                        <Sparkles size={32} />
+
+                    </div>
+
+                    <h1 className="text-2xl font-bold text-[#1c241d]">
+                        Welcome to AURA AI
+                    </h1>
+
+                    <p className="text-sm text-[#738375] mt-3 mb-8">
+                        Your intelligent companion for conversations,
+                        research, and knowledge.
+                    </p>
+
+                    <button
+                        onClick={handleGoogleLogin}
+                        className="w-full py-3 px-4 border border-[#d4d1c8] rounded-xl flex items-center justify-center gap-3 hover:bg-[#f8f7f4] transition-colors font-medium text-[#2d372e]"
+                    >
+
+                        {/* <Chrome size={20} /> */}
+
+                        Continue with Google
+
+                    </button>
+
+                    <div className="flex items-center gap-3 my-6">
+
+                        <div className="h-px bg-[#e5e3dc] flex-1" />
+
+                        <span className="text-xs text-[#a0a99f]">
+                            OR
+                        </span>
+
+                        <div className="h-px bg-[#e5e3dc] flex-1" />
+
+                    </div>
+
+                    <button
+                        onClick={handleGuestLogin}
+                        disabled={guestLoading}
+                        className="w-full py-3 px-4 bg-[#4a7c59] hover:bg-[#3d6849] text-white rounded-xl flex items-center justify-center gap-3 transition-colors font-medium disabled:opacity-60"
+                    >
+
+                        {guestLoading ? (
+                            <Loader2 size={19} className="animate-spin" />
+                        ) : (
+                            <UserRound size={19} />
+                        )}
+
+                        Continue as Guest
+
+                    </button>
+
+                    <p className="text-xs text-[#a0a99f] mt-6">
+                        Sign in to access your account and saved conversations.
+                    </p>
+
+                </div>
 
             </div>
 
-            <div className="flex items-center gap-3 min-w-0">
+        );
 
-              <h1 className="text-sm font-semibold text-[#1c241d] whitespace-nowrap">
-                Current Conversation
-              </h1>
+    }
 
-              <span className="text-[11px] bg-[#e8e5dc] text-[#141815] px-2 py-1 rounded-md font-mono">
-                {activeSessionName.slice(0,17)}
-              </span>
+    return (
+
+        <div className="flex h-screen w-screen bg-[#f8f7f4] font-sans overflow-hidden text-[#1c241d]">
+
+            <Sidebar
+                activeSessionId={activeSessionId}
+                onSelectSession={handleSelectSession}
+                onNewChat={handleNewChat}
+                refreshThreads={refreshThreads}
+                user={user}
+                onLogout={handleLogout}
+            />
+
+            <div className="flex-1 flex flex-col min-w-0 h-screen">
+
+                <header className="h-14 px-6 border-b border-[#e5e3dc] flex items-center justify-between bg-[#f8f7f4] shrink-0">
+
+                    <div className="flex items-center gap-3 min-w-0">
+
+                        <div className="w-8 h-8 rounded-lg bg-[#e8e6df] flex items-center justify-center shrink-0">
+
+                            <Sparkles
+                                size={17}
+                                className="text-[#4a7c59]"
+                            />
+
+                        </div>
+
+                        <div className="flex items-center gap-3 min-w-0">
+
+                            <h1 className="text-sm font-semibold whitespace-nowrap">
+                                Current Conversation
+                            </h1>
+
+                            <span className="text-[11px] bg-[#e8e5dc] px-2 py-1 rounded-md font-mono">
+                                {activeSessionName.slice(0, 17)}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </header>
+
+                <ChatWindow
+                    threadId={activeSessionId}
+                    messages={messages}
+                    setMessages={setMessages}
+                />
+
+                <InputDock
+                    threadId={activeSessionId}
+                    onSendMessage={handleSendMessage}
+                    refreshThreads={setRefreshThreads}
+                />
 
             </div>
 
-          </div>
+        </div>
 
+    );
 
-        </header>
-
-        {/* Conversation Messages */}
-        <ChatWindow
-          threadId={activeSessionId}
-          messages={messages}
-          setMessages={setMessages}
-        />
-
-        {/* Input Dock */}
-        <InputDock
-          threadId={activeSessionId}
-          onSendMessage={handleSendMessage}
-          refreshThreads={setRefreshThreads}
-        />
-
-      </div>
-
-    </div>
-  );
 }

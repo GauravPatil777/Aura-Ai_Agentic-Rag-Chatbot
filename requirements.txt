@@ -32,12 +32,10 @@ psycopg[binary,pool]
 # PDF Processing
 pypdf
 
-# Search Tools
-duckduckgo-search
-
 # HTTP Requests
 requests
 
 langchain-huggingface
 sentence-transformers
 mcp
+langchain_groq

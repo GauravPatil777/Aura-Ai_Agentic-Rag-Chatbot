@@ -5,7 +5,6 @@ import {
     Plus,
     Search,
     MessageSquare,
-    Bot,
     Layers,
     HardDrive,
     SlidersHorizontal,
@@ -13,7 +12,8 @@ import {
     Loader2,
     RefreshCw,
     Trash2,
-    Sparkles
+    Sparkles,
+    UserRound
 } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -22,7 +22,9 @@ export default function Sidebar({
     activeSessionId,
     onSelectSession,
     onNewChat,
-    refreshThreads
+    refreshThreads,
+    user,
+    onLogout
 }) {
 
     const [searchQuery, setSearchQuery] = useState('');
@@ -167,8 +169,8 @@ export default function Sidebar({
     };
 
     // Select conversation
-    const handleSelectSession = (threadId,thread_name) => {
-        onSelectSession?.(threadId,thread_name);
+    const handleSelectSession = (threadId, thread_name) => {
+        onSelectSession?.(threadId, thread_name);
     };
 
     // Create new conversation
@@ -201,13 +203,12 @@ export default function Sidebar({
                     return (
                         <div
                             key={threadId}
-                            onClick={() => handleSelectSession(threadId,threadName)}
+                            onClick={() => handleSelectSession(threadId, threadName)}
                             title={thread.thread_name}
-                            className={`group p-3 rounded-xl flex items-center gap-3 cursor-pointer transition-colors ${
-                                isActive
+                            className={`group p-3 rounded-xl flex items-center gap-3 cursor-pointer transition-colors ${isActive
                                     ? 'bg-[#d8d5cb] text-[#1c241d] font-medium shadow-sm'
                                     : 'hover:bg-[#dfdcd3] text-[#3d4b3f]'
-                            }`}
+                                }`}
                         >
 
                             <Icon
@@ -253,11 +254,10 @@ export default function Sidebar({
 
             {/* AURA AI Sidebar */}
             <aside
-                className={`${
-                    isSidebarOpen
+                className={`${isSidebarOpen
                         ? 'w-80 border-r'
                         : 'w-0 border-r-0'
-                } bg-[#e8e6df] text-[#2d372e] flex flex-col justify-between border-[#d4d1c8] select-none h-screen shrink-0 overflow-hidden transition-[width] duration-300 ease-in-out`}
+                    } bg-[#e8e6df] text-[#2d372e] flex flex-col justify-between border-[#d4d1c8] select-none h-screen shrink-0 overflow-hidden transition-[width] duration-300 ease-in-out`}
             >
 
                 <div className="w-80 min-w-80">
@@ -410,41 +410,88 @@ export default function Sidebar({
                 </div>
 
                 {/* Footer */}
-                <div className="w-80 p-4 border-t border-[#dad7cd] flex items-center justify-between text-sm text-[#526355]">
+                
+                <div className="w-80 p-4 border-t border-[#dad7cd] space-y-4">
 
-                    <div className="flex items-center gap-2">
+                    {/* User Profile */}
+                    <div className="flex items-center gap-3">
 
-                        <HardDrive size={18} />
+                        {user?.picture ? (
 
-                        <span>
-                            {threads.length} Conversations
-                        </span>
+                            <img
+                                src={user.picture}
+                                alt="Profile"
+                                className="w-10 h-10 rounded-full object-cover"
+                            />
+
+                        ) : (
+
+                            <div className="w-10 h-10 rounded-full bg-[#3b5e43] text-white flex items-center justify-center">
+                                <UserRound size={20} />
+                            </div>
+
+                        )}
+
+                        <div className="flex-1 min-w-0">
+
+                            <p className="text-sm font-semibold text-[#2d372e] truncate">
+                                {user?.name || "Guest User"}
+                            </p>
+
+                            <p className="text-xs text-[#738375] truncate">
+                                {user?.email || "Guest Session"}
+                            </p>
+
+                        </div>
+
+                        <button
+                            onClick={onLogout}
+                            title="Logout"
+                            className="text-xs text-red-600 hover:bg-red-50 rounded-lg px-3 py-2"
+                        >
+                            Logout
+                        </button>
 
                     </div>
 
-                    <button
-                        onClick={fetchThreads}
-                        disabled={loading}
-                        title="Refresh conversations"
-                        className="p-2 hover:bg-[#dedbd2] rounded-lg text-[#526355] disabled:opacity-50"
-                    >
+                    {/* Conversation Information */}
+                    <div className="flex items-center justify-between text-sm text-[#526355]">
 
-                        <RefreshCw
-                            size={17}
-                            className={loading ? "animate-spin" : ""}
-                        />
+                        <div className="flex items-center gap-2">
 
-                    </button>
+                            <HardDrive size={18} />
 
-                    <button
-                        onClick={() => setIsSidebarOpen(false)}
-                        title="Hide sidebar"
-                        className="p-2 hover:bg-[#dedbd2] rounded-lg text-[#526355] transition-colors"
-                    >
+                            <span>
+                                {threads.length} Conversations
+                            </span>
 
-                        <SlidersHorizontal size={18} />
+                        </div>
 
-                    </button>
+                        <button
+                            onClick={fetchThreads}
+                            disabled={loading}
+                            title="Refresh conversations"
+                            className="p-2 hover:bg-[#dedbd2] rounded-lg disabled:opacity-50"
+                        >
+
+                            <RefreshCw
+                                size={17}
+                                className={loading ? "animate-spin" : ""}
+                            />
+
+                        </button>
+
+                        <button
+                            onClick={() => setIsSidebarOpen(false)}
+                            title="Hide sidebar"
+                            className="p-2 hover:bg-[#dedbd2] rounded-lg"
+                        >
+
+                            <SlidersHorizontal size={18} />
+
+                        </button>
+
+                    </div>
 
                 </div>
 

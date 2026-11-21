@@ -24,12 +24,19 @@ from mcp_client import call_tavily_search
 from pathlib import Path
 from nemoguardrails import RailsConfig, LLMRails
 from fastapi import FastAPI
+from langchain_groq import ChatGroq
 # from nemoguardrails.rails.llm.options import RailType,RailStatus
 
 router=APIRouter()
 
-model=ChatGoogleGenerativeAI(
-     model="gemini-3.6-flash"
+
+# model=ChatGoogleGenerativeAI(
+#      model="gemini-3-flash-preview"
+# )
+model = ChatGroq(
+    model="openai/gpt-oss-120b",
+    temperature=0.3,
+    max_tokens=2048
 )
 
 guard_model=ChatGoogleGenerativeAI(
@@ -165,7 +172,10 @@ def rag_tool(query: str) -> str:
 
     retrieved_docs = vector_store.similarity_search(query, k=3)
 
+    for doc in retrieved_docs:
+        print ("result :",doc.page_content)
     context = [doc.page_content for doc in retrieved_docs]
+    
 
     retrieval_contexts[current_thread_id] = context
 
@@ -240,9 +250,7 @@ def input_guardrail(state):
 
     result = guard_model.invoke(prompt)
 
-    classification = result.content[0]["TEXT"].strip().upper()
-
-    print("classification is:" ,classification)
+    classification = result.content[0]["text"]
     
     if classification != "TRUE":
 

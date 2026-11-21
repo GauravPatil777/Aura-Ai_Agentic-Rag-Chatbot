@@ -57,7 +57,7 @@ def generate_context(
 
         # 4. Split documents
         text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=500,
+            chunk_size=700,
             chunk_overlap=50
         )
 

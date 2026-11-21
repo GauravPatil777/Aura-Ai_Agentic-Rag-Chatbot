@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Loader2, MessageSquare } from 'lucide-react';
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function ChatWindow({ threadId, messages, setMessages }) {
@@ -32,8 +35,8 @@ export default function ChatWindow({ threadId, messages, setMessages }) {
               msg.role === 'user'
                 ? 'human'
                 : msg.role === 'assistant'
-                ? 'ai'
-                : 'tool',
+                  ? 'ai'
+                  : 'tool',
             text:
               typeof msg.content === 'string'
                 ? msg.content
@@ -98,20 +101,25 @@ export default function ChatWindow({ threadId, messages, setMessages }) {
 
           <div
             key={msg.id || index}
-            className={`flex ${
-              msg.type === 'human' ? 'justify-end' : 'justify-start'
-            }`}
+            className={`flex ${msg.type === 'human' ? 'justify-end' : 'justify-start'
+              }`}
           >
 
             <div
-              className={`max-w-[80%] px-6 py-5 rounded-2xl text-base leading-7 shadow-sm ${
-                msg.type === 'human'
-                  ? 'bg-[#4a7c59] text-white rounded-br-sm'
-                  : 'bg-white/70 text-[#273529] border border-[#ece9e1] rounded-bl-sm'
-              }`}
-            >
-              {msg.text}
-            </div>
+  className={`markdown-content max-w-[80%] px-6 py-5 rounded-2xl text-base leading-7 shadow-sm ${
+    msg.type === 'human'
+      ? 'bg-[#4a7c59] text-white rounded-br-sm'
+      : 'bg-white/70 text-[#273529] border border-[#ece9e1] rounded-bl-sm'
+  }`}
+>
+  {msg.type === 'human' ? (
+    <div className="whitespace-pre-wrap">{msg.text}</div>
+  ) : (
+    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+      {msg.text || ''}
+    </ReactMarkdown>
+  )}
+</div>
 
           </div>
 
