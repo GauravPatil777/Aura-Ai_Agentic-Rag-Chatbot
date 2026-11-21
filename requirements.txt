@@ -39,3 +39,6 @@ langchain-huggingface
 sentence-transformers
 mcp
 langchain_groq
+authlib 
+httpx 
+itsdangerous 
