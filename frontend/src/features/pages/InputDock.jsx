@@ -246,7 +246,7 @@ export default function InputDock({ threadId, onSendMessage, refreshThreads }) {
 
   return (
 
-    <div className="px-4 py-3 bg-[#f8f7f4] border-t border-[#e5e2d8]">
+    <div className="w-full shrink-0 px-3 sm:px-4 py-3 bg-[#f8f7f4] border-t border-[#e5e2d8]">
 
       <div className="max-w-5xl mx-auto space-y-2">
 

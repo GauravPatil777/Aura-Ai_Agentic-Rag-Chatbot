@@ -4,9 +4,11 @@ import axios from 'axios';
 import Sidebar from './features/pages/Sidebar';
 import ChatWindow from './features/pages/ChatWindow';
 import InputDock from './features/pages/InputDock';
+import Topbar from './features/pages/Topbar';
 
 import './App.css';
 import { Sparkles, Loader2, UserRound } from 'lucide-react';
+
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -242,11 +244,10 @@ export default function App() {
         );
 
     }
-
     return (
+        <div className="flex h-dvh w-full bg-[#f8f7f4] font-sans overflow-hidden text-[#1c241d]">
 
-        <div className="flex h-screen w-screen bg-[#f8f7f4] font-sans overflow-hidden text-[#1c241d]">
-
+            {/* Sidebar */}
             <Sidebar
                 activeSessionId={activeSessionId}
                 onSelectSession={handleSelectSession}
@@ -259,43 +260,26 @@ export default function App() {
                 setIsSidebarOpen={setIsSidebarOpen}
             />
 
-            <div className="flex-1 flex flex-col min-w-0 h-screen">
+            {/* Main Application */}
+            <div className="flex-1 flex flex-col min-w-0 min-h-0 h-dvh overflow-hidden">
 
-                <header className="h-14 px-6 border-b border-[#e5e3dc] flex items-center justify-between bg-[#f8f7f4] shrink-0">
-
-                    <div className="flex items-center gap-3 min-w-0">
-
-                        <div className="w-8 h-8 rounded-lg bg-[#e8e6df] flex items-center justify-center shrink-0">
-
-                            <Sparkles
-                                size={17}
-                                className="text-[#4a7c59]"
-                            />
-
-                        </div>
-
-                        <div className="flex items-center gap-3 min-w-0">
-
-                            <h1 className="text-sm font-semibold whitespace-nowrap">
-                                Current Conversation
-                            </h1>
-
-                            <span className="text-[11px] bg-[#e8e5dc] px-2 py-1 rounded-md font-mono">
-                                {activeSessionName.slice(0, 17)}
-                            </span>
-
-                        </div>
-
-                    </div>
-
-                </header>
-
-                <ChatWindow
-                    threadId={activeSessionId}
-                    messages={messages}
-                    setMessages={setMessages}
+                {/* Fixed Topbar */}
+                <Topbar
+                    onToggleSidebar={() => setIsSidebarOpen(prev => !prev)}
                 />
 
+                {/* Scrollable Chat Area */}
+                <main className="flex-1 min-h-0 overflow-hidden flex flex-col">
+
+                    <ChatWindow
+                        threadId={activeSessionId}
+                        messages={messages}
+                        setMessages={setMessages}
+                    />
+
+                </main>
+
+                {/* Fixed Input Dock */}
                 <InputDock
                     threadId={activeSessionId}
                     onSendMessage={handleSendMessage}
@@ -305,7 +289,6 @@ export default function App() {
             </div>
 
         </div>
-
     );
 
 }

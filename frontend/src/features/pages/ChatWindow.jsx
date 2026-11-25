@@ -10,142 +10,151 @@ const api = axios.create({
     baseURL: API_URL,
     withCredentials: true
 });
-export default function ChatWindow({ threadId, messages, setMessages}) {
 
-  const [loading, setLoading] = useState(false);
+export default function ChatWindow({ threadId, messages, setMessages }) {
 
-  useEffect(() => {
-    if (!threadId) {
-      setMessages([]);
-      return;
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        if (!threadId) {
+            setMessages([]);
+            return;
+        }
+
+        let cancelled = false;
+
+        const fetchHistory = async () => {
+            try {
+                setLoading(true);
+
+                const response = await api.get(
+                    `/get_thread_history/${encodeURIComponent(threadId)}`
+                );
+
+                if (cancelled) return;
+
+                const formattedMessages = (response.data.messages || []).map(
+                    (msg, index) => ({
+                        id: `${threadId}-${index}`,
+                        type:
+                            msg.role === 'user'
+                                ? 'human'
+                                : msg.role === 'assistant'
+                                    ? 'ai'
+                                    : 'tool',
+                        text:
+                            typeof msg.content === 'string'
+                                ? msg.content
+                                : JSON.stringify(msg.content),
+                        threadId
+                    })
+                );
+
+                setMessages(formattedMessages);
+
+            } catch (error) {
+                if (!cancelled) {
+                    console.error('Error fetching chat history:', error);
+                    setMessages([]);
+                }
+            } finally {
+                if (!cancelled) {
+                    setLoading(false);
+                }
+            }
+        };
+
+        fetchHistory();
+
+        return () => {
+            cancelled = true;
+        };
+
+    }, [threadId, setMessages]);
+
+
+    if (!threadId || loading) {
+        return (
+            <div className="flex-1 min-h-0 flex items-center justify-center text-[#526355] text-base">
+
+                {!threadId ? (
+                    <>
+                        <MessageSquare size={24} className="mr-3" />
+                        Select a conversation to view messages.
+                    </>
+                ) : (
+                    <>
+                        <Loader2 size={24} className="animate-spin mr-3" />
+                        Loading conversation...
+                    </>
+                )}
+
+            </div>
+        );
     }
 
-    let cancelled = false;
 
-    const fetchHistory = async () => {
-      try {
-        setLoading(true);
-
-        const response = await api.get(
-          `/get_thread_history/${encodeURIComponent(threadId)}`
-        );
-
-        if (cancelled) return;
-
-        const formattedMessages = (response.data.messages || []).map(
-          (msg, index) => ({
-            id: `${threadId}-${index}`,
-            type:
-              msg.role === 'user'
-                ? 'human'
-                : msg.role === 'assistant'
-                  ? 'ai'
-                  : 'tool',
-            text:
-              typeof msg.content === 'string'
-                ? msg.content
-                : JSON.stringify(msg.content),
-            threadId
-          })
-        );
-
-        setMessages(formattedMessages);
-
-      } catch (error) {
-        if (!cancelled) {
-          console.error('Error fetching chat history:', error);
-          setMessages([]);
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchHistory();
-
-    return () => {
-      cancelled = true;
-    };
-
-  }, [threadId, setMessages]);
-
-
-  if (!threadId) {
     return (
-      <div className="flex-1 flex items-center justify-center text-[#738375] text-base">
-        <MessageSquare size={24} className="mr-3" />
-        Select a conversation to view messages.
-      </div>
-    );
-  }
+        <div className="flex-1 min-h-0 h-full overflow-y-auto overflow-x-hidden p-4 sm:p-6 md:p-8 space-y-6">
 
+            {messages.length === 0 ? (
 
-  if (loading) {
-    return (
-      <div className="flex-1 flex items-center justify-center text-[#526355] text-base">
-        <Loader2 size={24} className="animate-spin mr-3" />
-        Loading conversation...
-      </div>
-    );
-  }
+                <div className="min-h-full flex flex-col items-center justify-center text-center px-4">
 
+                    <div className="w-16 h-16 rounded-2xl bg-[#4a7c59] flex items-center justify-center mb-6 shadow-md">
+                        <MessageSquare size={30} className="text-white" />
+                    </div>
 
-  return (
-    <div className="flex-1 overflow-y-auto p-8 space-y-6">
+                    <h1 className="text-3xl font-semibold text-[#273529] mb-3">
+                        Welcome to Aura AI
+                    </h1>
 
-      {messages.length === 0 ? (
-        <div className="h-full flex flex-col items-center justify-center text-center px-4">
+                    <p className="text-[#738375] text-base max-w-md leading-7">
+                        Your AI-powered research assistant. Ask questions, explore documents,
+                        and discover insights through intelligent conversations.
+                    </p>
 
-          <div className="w-16 h-16 rounded-2xl bg-[#4a7c59] flex items-center justify-center mb-6 shadow-md">
-            <MessageSquare size={30} className="text-white" />
-          </div>
+                    <p className="mt-8 text-sm text-[#738375]">
+                        Start a conversation by typing your message below.
+                    </p>
 
-          <h1 className="text-3xl font-semibold text-[#273529] mb-3">
-            Welcome to Aura AI
-          </h1>
+                </div>
 
-          <p className="text-[#738375] text-base max-w-md leading-7">
-            Your AI-powered research assistant. Ask questions, explore documents,
-            and discover insights through intelligent conversations.
-          </p>
+            ) : (
 
-          <p className="mt-8 text-sm text-[#738375]">
-            Start a conversation by typing your message below.
-          </p>
+                messages.map((msg, index) => (
+
+                    <div
+                        key={msg.id || index}
+                        className={`flex ${msg.type === 'human' ? 'justify-end' : 'justify-start'}`}
+                    >
+
+                        <div
+                            className={`markdown-content max-w-[90%] sm:max-w-[80%] px-4 sm:px-6 py-4 sm:py-5 rounded-2xl text-base leading-7 shadow-sm ${
+                                msg.type === 'human'
+                                    ? 'bg-[#4a7c59] text-white rounded-br-sm'
+                                    : 'bg-white/70 text-[#273529] border border-[#ece9e1] rounded-bl-sm'
+                            }`}
+                        >
+
+                            {msg.type === 'human' ? (
+                                <div className="whitespace-pre-wrap break-words">
+                                    {msg.text}
+                                </div>
+                            ) : (
+                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                    {msg.text || ''}
+                                </ReactMarkdown>
+                            )}
+
+                        </div>
+
+                    </div>
+
+                ))
+
+            )}
 
         </div>
-      ) : (
-
-        messages.map((msg, index) => (
-
-          <div
-            key={msg.id || index}
-            className={`flex ${msg.type === 'human' ? 'justify-end' : 'justify-start'
-              }`}
-          >
-
-            <div
-              className={`markdown-content max-w-[80%] px-6 py-5 rounded-2xl text-base leading-7 shadow-sm ${msg.type === 'human'
-                  ? 'bg-[#4a7c59] text-white rounded-br-sm'
-                  : 'bg-white/70 text-[#273529] border border-[#ece9e1] rounded-bl-sm'
-                }`}
-            >
-              {msg.type === 'human' ? (
-                <div className="whitespace-pre-wrap">{msg.text}</div>
-              ) : (
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {msg.text || ''}
-                </ReactMarkdown>
-              )}
-            </div>
-
-          </div>
-
-        ))
-      )}
-
-    </div>
-  );
+    );
 }
