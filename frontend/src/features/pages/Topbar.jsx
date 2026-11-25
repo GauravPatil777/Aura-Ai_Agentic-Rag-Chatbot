@@ -40,20 +40,6 @@ export default function Topbar({ onToggleTelemetry, showTelemetry }) {
 
         <div className="h-5 w-px bg-[#d9d6cd]" />
 
-        {/* Telemetry Toggle */}
-        <button
-          onClick={onToggleTelemetry}
-          className={`p-2 rounded-lg transition-all ${
-            showTelemetry
-              ? 'bg-[#e1e5dc] text-[#3b5e43]'
-              : 'text-[#738375] hover:bg-[#ece9e1] hover:text-[#1c241d]'
-          }`}
-          title={showTelemetry ? "Hide telemetry" : "Show telemetry"}
-        >
-
-          <LayoutPanelLeft size={18} />
-
-        </button>
 
       </div>
 

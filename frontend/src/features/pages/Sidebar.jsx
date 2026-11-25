@@ -13,7 +13,8 @@ import {
     RefreshCw,
     Trash2,
     Sparkles,
-    UserRound
+    UserRound,
+    PanelLeft
 } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -39,7 +40,7 @@ export default function Sidebar({
     const [error, setError] = useState('');
     const [deletingThreads, setDeletingThreads] = useState(new Set());
 
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     // Fetch saved conversations
     const fetchThreads = async () => {
@@ -274,7 +275,7 @@ export default function Sidebar({
                     } bg-[#e8e6df] text-[#2d372e] flex flex-col justify-between border-[#d4d1c8] select-none h-screen shrink-0 overflow-hidden transition-[width] duration-300 ease-in-out`}
             >
 
-                <div className="w-80 min-w-80 h-full flex flex-col">
+                <div className="fixed inset-y-0 left-0 z-40 w-72 h-dvh flex flex-col overflow-hidden">
 
                     {/* AURA AI Branding */}
                     <div className="p-5 border-b border-[#dad7cd] flex items-center justify-between">
@@ -341,7 +342,7 @@ export default function Sidebar({
 
                     {authType === "guest" ? (
 
-                        <div className="px-4 py-8 text-center flex-1">
+                        <div className="px-4 py-8 text-center flex-1 min-h-0 overflow-y-auto">
 
                             <div className="flex justify-center mb-4">
                                 <MessageSquare size={28} className="text-[#8a9b8c]" />
@@ -531,7 +532,7 @@ export default function Sidebar({
                                 className="p-2 hover:bg-[#dedbd2] rounded-lg"
                             >
 
-                                <SlidersHorizontal size={18} />
+                                <SlidersHorizontal size={24} />
 
                             </button>
 
@@ -545,14 +546,14 @@ export default function Sidebar({
             {!isSidebarOpen && (
                 <button
                     onClick={() => setIsSidebarOpen(true)}
-                    title="Show AURA AI sidebar"
-                    className="fixed top-4 left-4 z-50 p-3 bg-[#3b5e43] text-white rounded-xl shadow-lg hover:bg-[#4a7c59] transition-all duration-200"
+                    title="Open sidebar"
+                    aria-label="Open sidebar"
+                    className="fixed top-3 left-4 z-50 p-3 bg-[#3b5e43] text-white rounded-xl shadow-lg hover:bg-[#4a7c59] hover:scale-105 transition-all duration-200"
                 >
-
-                    <Sparkles size={20} />
-
+                    <PanelLeft size={20} strokeWidth={2} />
                 </button>
             )}
+            
 
         </>
     );
