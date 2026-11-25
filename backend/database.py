@@ -13,6 +13,6 @@ if not DATABASE_URL:
 pool = ConnectionPool(
     conninfo=DATABASE_URL,
     min_size=1,
-    max_size=int(os.getenv("DB_POOL_MAX_SIZE", "5")),
+    max_size=int(os.getenv("DB_POOL_MAX_SIZE", "3")),
     open=True,
 )
