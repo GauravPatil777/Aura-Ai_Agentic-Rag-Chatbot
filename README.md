@@ -17,12 +17,13 @@ Unlike a basic chatbot, AURA AI focuses on building a more complete AI applicati
 
 ### Login Page
 [![AURA AI Login](screenshots/login.png)](https://aura-ai-agentic-rag-chatbot-1.onrender.com/)
+https://github.com/GauravPatil777/Aura-Ai_Agentic-Rag-Chatbot/blob/main/Screenshots/conversation.png
 
 ### Main Dashboard
 ![AURA AI Dashboard](screenshots/dashboard.png)
 
 ### AI Conversation
-![AI Conversation](screenshots/conversation.png)
+[![AURA AI Conversation](Screenshots/conversation.png)](https://github.com/GauravPatil777/Aura-Ai_Agentic-Rag-Chatbot/blob/main/Screenshots/conversation.png)
 
 ### LangSmith Observability
 ![LangSmith Observability](screenshots/tracing-langsmith.png)
