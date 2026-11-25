@@ -83,16 +83,11 @@ app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     SessionMiddleware,
-
     secret_key=os.getenv("SECRET_KEY"),
-
     session_cookie="aura_session",
-
     max_age=60 * 60 * 24 * 7,
-
-    same_site="lax",
-
-    https_only=os.getenv("ENVIRONMENT") == "production"
+    same_site="none",
+    https_only=True
 )
 
 # CORS
