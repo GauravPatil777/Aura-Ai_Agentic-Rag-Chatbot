@@ -1,8 +1,6 @@
 import os
 import uuid
 
-from datetime import datetime, timedelta
-
 from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import RedirectResponse
 from starlette.concurrency import run_in_threadpool
@@ -10,29 +8,17 @@ from starlette.concurrency import run_in_threadpool
 from auth.google import oauth
 from database import pool
 
+
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
-FRONTEND_URL = os.getenv(
-    "FRONTEND_URL",
-    "http://localhost:5173"
-)
-
-GUEST_SESSION_DAYS = 7
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
 
-# ----------------------------------
-# Find or Create Google User
-# ----------------------------------
+# Google User Database Operations
 
-def get_or_create_user(
-    google_id,
-    email,
-    name,
-    picture
-):
+def get_or_create_user(google_id, email, name, picture):
 
     with pool.connection() as conn:
-
         with conn.cursor() as cursor:
 
             cursor.execute(
@@ -50,17 +36,11 @@ def get_or_create_user(
                 return user
 
             cursor.execute(
-                """
-                SELECT id
-                FROM users
-                WHERE email = %s
-                """,
+                "SELECT id FROM users WHERE email = %s",
                 (email,)
             )
 
-            existing_email = cursor.fetchone()
-
-            if existing_email:
+            if cursor.fetchone():
                 raise ValueError(
                     "This email is already associated with another account."
                 )
@@ -68,10 +48,7 @@ def get_or_create_user(
             cursor.execute(
                 """
                 INSERT INTO users (
-                    google_id,
-                    email,
-                    name,
-                    profile_picture
+                    google_id, email, name, profile_picture
                 )
                 VALUES (%s, %s, %s, %s)
                 RETURNING id, google_id, email, name, profile_picture
@@ -86,69 +63,24 @@ def get_or_create_user(
     return user
 
 
-# ----------------------------------
-# Create Guest Session
-# ----------------------------------
-
-def create_guest_session():
-
-    guest_id = uuid.uuid4()
-
-    expires_at = datetime.now() + timedelta(
-        days=GUEST_SESSION_DAYS
-    )
+def get_user_by_id(user_id):
 
     with pool.connection() as conn:
-
         with conn.cursor() as cursor:
 
             cursor.execute(
                 """
-                INSERT INTO guest_sessions (
-                    id,
-                    expires_at
-                )
-                VALUES (%s, %s)
-                RETURNING id
-                """,
-                (guest_id, expires_at)
-            )
-
-            guest = cursor.fetchone()
-
-        conn.commit()
-
-    return str(guest[0])
-
-
-# ----------------------------------
-# Validate Guest Session
-# ----------------------------------
-
-def get_valid_guest(guest_session_id):
-
-    with pool.connection() as conn:
-
-        with conn.cursor() as cursor:
-
-            cursor.execute(
-                """
-                SELECT id
-                FROM guest_sessions
+                SELECT id, name, email, profile_picture
+                FROM users
                 WHERE id = %s
-                AND expires_at > CURRENT_TIMESTAMP
                 """,
-                (guest_session_id,)
+                (user_id,)
             )
 
-            guest = cursor.fetchone()
-
-    return guest
+            return cursor.fetchone()
 
 
-# ----------------------------------
 # Google Login
-# ----------------------------------
 
 @router.get("/google")
 async def google_login(request: Request):
@@ -161,18 +93,14 @@ async def google_login(request: Request):
     )
 
 
-# ----------------------------------
 # Google Callback
-# ----------------------------------
 
 @router.get("/google/callback")
 async def google_callback(request: Request):
 
     try:
 
-        token = await oauth.google.authorize_access_token(
-            request
-        )
+        token = await oauth.google.authorize_access_token(request)
 
         user_info = token.get("userinfo")
 
@@ -182,32 +110,23 @@ async def google_callback(request: Request):
                 detail="Google authentication failed"
             )
 
-        google_id = user_info["sub"]
-
-        email = user_info["email"]
-
         if user_info.get("email_verified") is not True:
             raise HTTPException(
                 status_code=403,
                 detail="Google email is not verified"
             )
 
-        name = user_info.get("name")
-
-        picture = user_info.get("picture")
-
         user = await run_in_threadpool(
             get_or_create_user,
-            google_id,
-            email,
-            name,
-            picture
+            user_info["sub"],
+            user_info["email"],
+            user_info.get("name"),
+            user_info.get("picture")
         )
 
         request.session.clear()
 
         request.session["user_id"] = str(user[0])
-
         request.session["auth_type"] = "google"
 
         return RedirectResponse(
@@ -215,59 +134,28 @@ async def google_callback(request: Request):
             status_code=303
         )
 
-    except ValueError as e:
+    except ValueError as error:
 
         raise HTTPException(
             status_code=409,
-            detail=str(e)
+            detail=str(error)
         )
 
 
-# ----------------------------------
 # Guest Login
-# ----------------------------------
 
 @router.post("/guest")
 async def guest_login(request: Request):
 
-    # If an active guest session already exists,
-    # reuse it rather than creating another one.
-
-    guest_session_id = request.session.get(
-        "guest_session_id"
-    )
-
-    if guest_session_id:
-
-        guest = await run_in_threadpool(
-            get_valid_guest,
-            guest_session_id
-        )
-
-        if guest:
-
-            return {
-                "id": str(guest[0]),
-                "name": "Guest User",
-                "email": None,
-                "picture": None,
-                "auth_type": "guest"
-            }
-
-    # Create a new guest session
-
-    guest_session_id = await run_in_threadpool(
-        create_guest_session
-    )
+    guest_id = str(uuid.uuid4())
 
     request.session.clear()
 
-    request.session["guest_session_id"] = guest_session_id
-
+    request.session["guest_session_id"] = guest_id
     request.session["auth_type"] = "guest"
 
     return {
-        "id": guest_session_id,
+        "id": guest_id,
         "name": "Guest User",
         "email": None,
         "picture": None,
@@ -275,54 +163,29 @@ async def guest_login(request: Request):
     }
 
 
-# ----------------------------------
-# Get Current User / Guest
-# ----------------------------------
+# Current User
 
 @router.get("/me")
 async def get_current_user(request: Request):
 
     auth_type = request.session.get("auth_type")
 
-    # Google user
-
     if auth_type == "google":
 
         user_id = request.session.get("user_id")
 
         if not user_id:
-            raise HTTPException(
-                status_code=401,
-                detail="Not authenticated"
-            )
+            request.session.clear()
+            raise HTTPException(401, "Not authenticated")
 
-        def fetch_user():
-
-            with pool.connection() as conn:
-
-                with conn.cursor() as cursor:
-
-                    cursor.execute(
-                        """
-                        SELECT id, name, email, profile_picture
-                        FROM users
-                        WHERE id = %s
-                        """,
-                        (user_id,)
-                    )
-
-                    return cursor.fetchone()
-
-        user = await run_in_threadpool(fetch_user)
+        user = await run_in_threadpool(
+            get_user_by_id,
+            user_id
+        )
 
         if not user:
-
             request.session.clear()
-
-            raise HTTPException(
-                status_code=401,
-                detail="User not found"
-            )
+            raise HTTPException(401, "User not found")
 
         return {
             "id": str(user[0]),
@@ -332,59 +195,30 @@ async def get_current_user(request: Request):
             "auth_type": "google"
         }
 
-    # Guest user
-
     if auth_type == "guest":
 
-        guest_session_id = request.session.get(
-            "guest_session_id"
-        )
+        guest_id = request.session.get("guest_session_id")
 
-        if not guest_session_id:
+        if not guest_id:
             request.session.clear()
-
-            raise HTTPException(
-                status_code=401,
-                detail="Guest session not found"
-            )
-
-        guest = await run_in_threadpool(
-            get_valid_guest,
-            guest_session_id
-        )
-
-        if not guest:
-
-            request.session.clear()
-
-            raise HTTPException(
-                status_code=401,
-                detail="Guest session expired"
-            )
+            raise HTTPException(401, "Guest session not found")
 
         return {
-            "id": str(guest[0]),
+            "id": guest_id,
             "name": "Guest User",
             "email": None,
             "picture": None,
             "auth_type": "guest"
         }
 
-    raise HTTPException(
-        status_code=401,
-        detail="Not authenticated"
-    )
+    raise HTTPException(401, "Not authenticated")
 
 
-# ----------------------------------
 # Logout
-# ----------------------------------
 
 @router.post("/logout")
 def logout(request: Request):
 
     request.session.clear()
 
-    return {
-        "message": "Logged out successfully"
-    }
+    return {"message": "Logged out successfully"}

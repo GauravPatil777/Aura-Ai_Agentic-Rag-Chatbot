@@ -138,7 +138,7 @@ export default function ChatWindow({ threadId, messages, setMessages }) {
                         >
 
                             {msg.type === 'human' ? (
-                                <div className="whitespace-pre-wrap break-words">
+                                <div className="whitespace-pre-wrap wrap-break-word">
                                     {msg.text}
                                 </div>
                             ) : (

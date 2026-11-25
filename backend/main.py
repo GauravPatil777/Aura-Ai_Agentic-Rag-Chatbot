@@ -39,16 +39,7 @@ async def lifespan(app: FastAPI):
                 )
             """)
 
-            # 2. Guest sessions table
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS guest_sessions (
-                    id UUID PRIMARY KEY,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    expires_at TIMESTAMP NOT NULL
-                )
-            """)
-
-            # 3. Thread names table with user_id
+            # 2. Thread names table with user_id
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS thread_names (
                     thread_id TEXT PRIMARY KEY,
@@ -58,14 +49,14 @@ async def lifespan(app: FastAPI):
                 )
             """)
 
-            # 4. Migration for existing databases
+            # 3. Migration for existing databases
             cursor.execute("""
                 ALTER TABLE thread_names
                 ADD COLUMN IF NOT EXISTS user_id UUID
                 REFERENCES users(id) ON DELETE CASCADE
             """)
 
-            # 5. Index for faster user-specific thread retrieval
+            # 4. Index for faster user-specific thread retrieval
             cursor.execute("""
                 CREATE INDEX IF NOT EXISTS idx_thread_names_user_id
                 ON thread_names(user_id)

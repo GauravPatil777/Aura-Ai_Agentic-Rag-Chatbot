@@ -171,18 +171,15 @@ export default function App() {
     }
 
     // Login screen
+
     if (!user) {
-
         return (
+            <div className="fixed inset-0 h-dvh w-full flex items-center justify-center bg-[#f8f7f4] px-5 overflow-hidden">
 
-            <div className="h-screen flex items-center justify-center bg-[#f8f7f4] px-5">
+                <div className="w-full max-w-md max-h-full overflow-y-auto bg-white border border-[#e5e3dc] rounded-2xl p-8 shadow-sm text-center">
 
-                <div className="w-full max-w-md bg-white border border-[#e5e3dc] rounded-2xl p-8 shadow-sm text-center">
-
-                    <div className="w-16 h-16 mx-auto rounded-2xl bg-[#3b5e43] text-white flex items-center justify-center mb-5">
-
+                    <div className="w-16 h-16 mx-auto rounded-2xl bg-[#3b5e43] text-white flex items-center justify-center mb-5 shrink-0">
                         <Sparkles size={32} />
-
                     </div>
 
                     <h1 className="text-2xl font-bold text-[#1c241d]">
@@ -198,15 +195,10 @@ export default function App() {
                         onClick={handleGoogleLogin}
                         className="w-full py-3 px-4 border border-[#d4d1c8] rounded-xl flex items-center justify-center gap-3 hover:bg-[#f8f7f4] transition-colors font-medium text-[#2d372e]"
                     >
-
-                        {/* <Chrome size={20} /> */}
-
                         Continue with Google
-
                     </button>
 
                     <div className="flex items-center gap-3 my-6">
-
                         <div className="h-px bg-[#e5e3dc] flex-1" />
 
                         <span className="text-xs text-[#a0a99f]">
@@ -214,7 +206,6 @@ export default function App() {
                         </span>
 
                         <div className="h-px bg-[#e5e3dc] flex-1" />
-
                     </div>
 
                     <button
@@ -222,7 +213,6 @@ export default function App() {
                         disabled={guestLoading}
                         className="w-full py-3 px-4 bg-[#4a7c59] hover:bg-[#3d6849] text-white rounded-xl flex items-center justify-center gap-3 transition-colors font-medium disabled:opacity-60"
                     >
-
                         {guestLoading ? (
                             <Loader2 size={19} className="animate-spin" />
                         ) : (
@@ -230,7 +220,6 @@ export default function App() {
                         )}
 
                         Continue as Guest
-
                     </button>
 
                     <p className="text-xs text-[#a0a99f] mt-6">
@@ -238,11 +227,8 @@ export default function App() {
                     </p>
 
                 </div>
-
             </div>
-
         );
-
     }
     return (
         <div className="flex h-dvh w-full bg-[#f8f7f4] font-sans overflow-hidden text-[#1c241d]">
