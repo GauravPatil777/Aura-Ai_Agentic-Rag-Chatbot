@@ -16,20 +16,20 @@ Unlike a basic chatbot, AURA AI focuses on building a more complete AI applicati
 ## 📸 Application Screenshots
 
 ### Login Page
-[![AURA AI Login](screenshots/login.png)](https://aura-ai-agentic-rag-chatbot-1.onrender.com/)
-https://github.com/GauravPatil777/Aura-Ai_Agentic-Rag-Chatbot/blob/main/Screenshots/conversation.png
+[![AURA AI Login](Screenshots/login.png)](https://github.com/GauravPatil777/Aura-Ai_Agentic-Rag-Chatbot/blob/main/Screenshots/login.png)
 
 ### Main Dashboard
-![AURA AI Dashboard](screenshots/dashboard.png)
+[![AURA AI Dashboard](Screenshots/dashboard.png)](https://github.com/GauravPatil777/Aura-Ai_Agentic-Rag-Chatbot/blob/main/Screenshots/dashboard.png)
 
 ### AI Conversation
 [![AURA AI Conversation](Screenshots/conversation.png)](https://github.com/GauravPatil777/Aura-Ai_Agentic-Rag-Chatbot/blob/main/Screenshots/conversation.png)
 
 ### LangSmith Observability
-![LangSmith Observability](screenshots/tracing-langsmith.png)
+[![LangSmith Observability](Screenshots/tracing-langsmith.png)](https://github.com/GauravPatil777/Aura-Ai_Agentic-Rag-Chatbot/blob/main/Screenshots/tracing-langsmith.png)
 
 ### Architecture
-![Workflow Architecture](screenshots/workflow.png)
+[![Workflow Architecture](Screenshots/workflow.png)](https://github.com/GauravPatil777/Aura-Ai_Agentic-Rag-Chatbot/blob/main/Screenshots/workflow.png)
+
 ---
 
 ## 🌟 Key Features
