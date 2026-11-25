@@ -128,7 +128,7 @@ def web_search(query: str,max_results: int = 1) -> str:
         )
 
 @tool
-def calculator(a: int, b: int,operation:str) -> int:
+def calculator(a: float, b: float,operation:str) -> float:
     """perform arithmetic operations on two numbers.
     supported operations: add, subtract, multiply, divide."""
     try:

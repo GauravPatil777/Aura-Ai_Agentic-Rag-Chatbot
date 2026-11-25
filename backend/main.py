@@ -24,44 +24,60 @@ load_dotenv()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
 
-    # Application startup
     with pool.connection() as conn:
         with conn.cursor() as cursor:
 
+            # 1. Users table
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS users (
+                    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                    google_id VARCHAR(255) UNIQUE NOT NULL,
+                    email VARCHAR(255) UNIQUE NOT NULL,
+                    name VARCHAR(255),
+                    profile_picture TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+
+            # 2. Guest sessions table
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS guest_sessions (
+                    id UUID PRIMARY KEY,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    expires_at TIMESTAMP NOT NULL
+                )
+            """)
+
+            # 3. Thread names table with user_id
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS thread_names (
                     thread_id TEXT PRIMARY KEY,
+                    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
                     thread_name TEXT NOT NULL,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             """)
 
+            # 4. Migration for existing databases
             cursor.execute("""
-    CREATE TABLE IF NOT EXISTS users (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        google_id VARCHAR(255) UNIQUE NOT NULL,
-        email VARCHAR(255) UNIQUE NOT NULL,
-        name VARCHAR(255),
-        profile_picture TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-""")
+                ALTER TABLE thread_names
+                ADD COLUMN IF NOT EXISTS user_id UUID
+                REFERENCES users(id) ON DELETE CASCADE
+            """)
+
+            # 5. Index for faster user-specific thread retrieval
             cursor.execute("""
-    CREATE TABLE IF NOT EXISTS guest_sessions (
-        id UUID PRIMARY KEY,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        expires_at TIMESTAMP NOT NULL
-    )
-""")
+                CREATE INDEX IF NOT EXISTS idx_thread_names_user_id
+                ON thread_names(user_id)
+            """)
+
         conn.commit()
 
-    print("Thread names table initialized successfully!")
+    print("Database tables initialized successfully!")
 
     yield
 
-    # Application shutdown
     print("FastAPI application shutting down...")
-
 
 app = FastAPI(lifespan=lifespan)
 
