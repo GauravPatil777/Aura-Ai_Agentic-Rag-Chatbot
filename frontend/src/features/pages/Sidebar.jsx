@@ -31,7 +31,9 @@ export default function Sidebar({
     refreshThreads,
     user,
     onLogout,
-    authType
+    authType,
+    isSidebarOpen,
+    setIsSidebarOpen
 }) {
 
     const [searchQuery, setSearchQuery] = useState('');
@@ -39,8 +41,6 @@ export default function Sidebar({
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [deletingThreads, setDeletingThreads] = useState(new Set());
-
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     // Fetch saved conversations
     const fetchThreads = async () => {
@@ -268,17 +268,23 @@ export default function Sidebar({
         <>
 
             {/* AURA AI Sidebar */}
+            {isSidebarOpen && (
+                <div
+                    className="fixed inset-0 bg-black/40 z-30 md:hidden"
+                    onClick={() => setIsSidebarOpen(false)}
+                />
+            )}
             <aside
-                className={`${isSidebarOpen
-                    ? 'w-80 border-r'
-                    : 'w-0 border-r-0'
-                    } bg-[#e8e6df] text-[#2d372e] flex flex-col justify-between border-[#d4d1c8] select-none h-screen shrink-0 overflow-hidden transition-[width] duration-300 ease-in-out`}
+                className={`${isSidebarOpen ? 'w-80 border-r' : 'w-0 border-r-0'
+                    } fixed top-0 left-0 z-40 h-dvh max-h-dvh
+    bg-[#e8e6df] text-[#2d372e] border-[#d4d1c8]
+    select-none shrink-0 overflow-hidden
+    transition-[width] duration-300 ease-in-out`}
             >
-
-                <div className="fixed inset-y-0 left-0 z-40 w-72 h-dvh flex flex-col overflow-hidden">
+                <div className="w-80 h-full min-h-0 flex flex-col overflow-hidden">
 
                     {/* AURA AI Branding */}
-                    <div className="p-5 border-b border-[#dad7cd] flex items-center justify-between">
+                    <div className="p-4 space-y-4 shrink-0">
 
                         <div className="flex items-center gap-3">
 
@@ -305,7 +311,7 @@ export default function Sidebar({
                     </div>
 
                     {/* New Chat and Search */}
-                    <div className="p-4 space-y-4">
+                    <div className="p-4 space-y-4 shrink-0">
 
                         <button
                             onClick={handleNewChat}
@@ -342,7 +348,7 @@ export default function Sidebar({
 
                     {authType === "guest" ? (
 
-                        <div className="px-4 py-8 text-center flex-1 min-h-0 overflow-y-auto">
+                        <div className="px-4 py-8 text-center flex-1 min-h-0 overflow-y-auto overscroll-contain">
 
                             <div className="flex justify-center mb-4">
                                 <MessageSquare size={28} className="text-[#8a9b8c]" />
@@ -367,7 +373,7 @@ export default function Sidebar({
                         </div>
 
                     ) : (
-                        <div className="px-4 space-y-5 flex-1 min-h-0 overflow-y-auto">
+                        <div className="px-4 space-y-5 flex-1 min-h-0 overflow-y-auto overscroll-contain">
 
                             {loading && (
                                 <div className="flex items-center justify-center gap-3 py-10 text-sm text-[#738375]">
@@ -456,7 +462,7 @@ export default function Sidebar({
 
                     {/* Footer */}
 
-                    <div className="w-80 p-4 border-t border-[#dad7cd] space-y-4">
+                    <div className="w-full shrink-0 p-3 sm:p-4 border-t border-[#dad7cd] space-y-3 bg-[#e8e6df]">
 
                         {/* User Profile */}
                         <div className="flex items-center gap-3">
@@ -553,7 +559,7 @@ export default function Sidebar({
                     <PanelLeft size={20} strokeWidth={2} />
                 </button>
             )}
-            
+
 
         </>
     );

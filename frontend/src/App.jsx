@@ -21,7 +21,7 @@ export default function App() {
     const [authType, setAuthType] = useState(null)
     const [authLoading, setAuthLoading] = useState(true);
     const [guestLoading, setGuestLoading] = useState(false);
-
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false)
     const [activeSessionId, setActiveSessionId] = useState(
         () => crypto.randomUUID()
     );
@@ -40,7 +40,7 @@ export default function App() {
                 const response = await api.get(
                     `/auth/me`
                 );
-                
+
                 setUser(response.data);
                 setAuthType(response.data.auth_type)
 
@@ -255,6 +255,8 @@ export default function App() {
                 user={user}
                 onLogout={handleLogout}
                 authType={authType}
+                isSidebarOpen={isSidebarOpen}
+                setIsSidebarOpen={setIsSidebarOpen}
             />
 
             <div className="flex-1 flex flex-col min-w-0 h-screen">
