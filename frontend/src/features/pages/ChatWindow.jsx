@@ -6,6 +6,10 @@ import remarkGfm from "remark-gfm";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+const api = axios.create({
+    baseURL: API_URL,
+    withCredentials: true
+});
 export default function ChatWindow({ threadId, messages, setMessages}) {
 
   const [loading, setLoading] = useState(false);
@@ -22,8 +26,8 @@ export default function ChatWindow({ threadId, messages, setMessages}) {
       try {
         setLoading(true);
 
-        const response = await axios.get(
-          `${API_URL}/get_thread_history/${encodeURIComponent(threadId)}`
+        const response = await api.get(
+          `/get_thread_history/${encodeURIComponent(threadId)}`
         );
 
         if (cancelled) return;

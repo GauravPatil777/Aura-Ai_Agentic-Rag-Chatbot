@@ -18,6 +18,11 @@ import {
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+const api = axios.create({
+    baseURL: API_URL,
+    withCredentials: true
+});
+
 export default function Sidebar({
     activeSessionId,
     onSelectSession,
@@ -42,8 +47,8 @@ export default function Sidebar({
             setLoading(true);
             setError('');
 
-            const response = await axios.get(
-                `${API_URL}/retrieve_thread_names`
+            const response = await api.get(
+                `/retrieve_thread_names`
             );
 
             setThreads(response.data);
@@ -140,8 +145,8 @@ export default function Sidebar({
                 new Set(prev).add(threadId)
             );
 
-            await axios.delete(
-                `${API_URL}/delete_thread/${encodeURIComponent(threadId)}`
+            await api.delete(
+                `/delete_thread/${encodeURIComponent(threadId)}`
             );
 
             setThreads(prev =>

@@ -12,6 +12,11 @@ import {
 
 const API_URL =import.meta.env.VITE_API_URL;
 
+const api = axios.create({
+    baseURL: API_URL,
+    withCredentials: true
+});
+
 export default function InputDock({ threadId, onSendMessage, refreshThreads }) {
 
   const [prompt, setPrompt] = useState('');
@@ -119,8 +124,8 @@ export default function InputDock({ threadId, onSendMessage, refreshThreads }) {
 
       setUploading(true);
 
-      const response = await axios.post(
-        `${API_URL}/generate_context`,
+      const response = await api.post(
+        `/generate_context`,
         formData
       );
 
@@ -196,8 +201,8 @@ export default function InputDock({ threadId, onSendMessage, refreshThreads }) {
 
     try {
 
-      const response = await axios.post(
-        `${API_URL}/generate_response`,
+      const response = await api.post(
+        `/generate_response`,
         {
           user_inp: userMessage,
           thread_id: threadId

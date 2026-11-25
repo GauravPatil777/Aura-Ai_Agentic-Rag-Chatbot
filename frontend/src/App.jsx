@@ -10,7 +10,10 @@ import { Sparkles, Loader2, UserRound } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-axios.defaults.withCredentials = true;
+const api = axios.create({
+    baseURL: API_URL,
+    withCredentials: true
+});
 
 export default function App() {
 
@@ -34,8 +37,8 @@ export default function App() {
 
             try {
 
-                const response = await axios.get(
-                    `${API_URL}/auth/me`
+                const response = await api.get(
+                    `/auth/me`
                 );
                 
                 setUser(response.data);
@@ -75,8 +78,8 @@ export default function App() {
 
             setGuestLoading(true);
 
-            const response = await axios.post(
-                `${API_URL}/auth/guest`
+            const response = await api.post(
+                `/auth/guest`
             );
 
             setUser(response.data);
@@ -104,7 +107,7 @@ export default function App() {
 
         try {
 
-            await axios.post(`${API_URL}/auth/logout`);
+            await api.post(`/auth/logout`);
 
         } catch (error) {
 
