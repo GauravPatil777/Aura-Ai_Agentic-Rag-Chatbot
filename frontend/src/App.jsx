@@ -15,6 +15,7 @@ axios.defaults.withCredentials = true;
 export default function App() {
 
     const [user, setUser] = useState(null);
+    const [authType, setAuthType] = useState(null)
     const [authLoading, setAuthLoading] = useState(true);
     const [guestLoading, setGuestLoading] = useState(false);
 
@@ -36,8 +37,9 @@ export default function App() {
                 const response = await axios.get(
                     `${API_URL}/auth/me`
                 );
-
+                
                 setUser(response.data);
+                setAuthType(response.data.auth_type)
 
             } catch (error) {
 
@@ -78,6 +80,7 @@ export default function App() {
             );
 
             setUser(response.data);
+            setAuthType("guest")
 
         } catch (error) {
 
@@ -112,6 +115,7 @@ export default function App() {
             setUser(null);
             setMessages([]);
             setActiveSessionId(crypto.randomUUID());
+            setAuthType(null)
             setActiveSessionName("New Chat");
 
         }
@@ -247,6 +251,7 @@ export default function App() {
                 refreshThreads={refreshThreads}
                 user={user}
                 onLogout={handleLogout}
+                authType={authType}
             />
 
             <div className="flex-1 flex flex-col min-w-0 h-screen">

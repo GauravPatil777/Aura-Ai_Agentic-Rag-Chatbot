@@ -24,7 +24,8 @@ export default function Sidebar({
     onNewChat,
     refreshThreads,
     user,
-    onLogout
+    onLogout,
+    authType
 }) {
 
     const [searchQuery, setSearchQuery] = useState('');
@@ -57,8 +58,15 @@ export default function Sidebar({
     };
 
     useEffect(() => {
+
+        if (authType !== "google") {
+            setThreads([]);
+            return;
+        }
+
         fetchThreads();
-    }, [refreshThreads]);
+
+    }, [authType, refreshThreads]);
 
     // Search conversations
     const filteredThreads = useMemo(() => {
@@ -193,21 +201,21 @@ export default function Sidebar({
                     <span>{items.length}</span>
 
                 </div>
-
-                {items.map(thread => {
+                {items.map((thread) => {
 
                     const threadId = thread.thread_id;
                     const threadName = thread.thread_name;
                     const isActive = activeSessionId === threadId;
 
                     return (
+
                         <div
                             key={threadId}
                             onClick={() => handleSelectSession(threadId, threadName)}
                             title={thread.thread_name}
                             className={`group p-3 rounded-xl flex items-center gap-3 cursor-pointer transition-colors ${isActive
-                                    ? 'bg-[#d8d5cb] text-[#1c241d] font-medium shadow-sm'
-                                    : 'hover:bg-[#dfdcd3] text-[#3d4b3f]'
+                                ? 'bg-[#d8d5cb] text-[#1c241d] font-medium shadow-sm'
+                                : 'hover:bg-[#dfdcd3] text-[#3d4b3f]'
                                 }`}
                         >
 
@@ -226,7 +234,7 @@ export default function Sidebar({
                                 }
                                 disabled={deletingThreads.has(threadId)}
                                 title="Delete conversation"
-                                className="shrink-0 p-2 rounded-md opacity-0 group-hover:opacity-100 hover:bg-red-100 text-[#738375] hover:text-red-600 transition-all disabled:opacity-100"
+                                className="shrink-0 p-2 rounded-md  hover:bg-red-100 text-[#738375] hover:text-red-600 transition-all disabled:opacity-100"
                             >
 
                                 {deletingThreads.has(threadId) ? (
@@ -245,6 +253,7 @@ export default function Sidebar({
 
                 })}
 
+
             </div>
         );
     };
@@ -255,12 +264,12 @@ export default function Sidebar({
             {/* AURA AI Sidebar */}
             <aside
                 className={`${isSidebarOpen
-                        ? 'w-80 border-r'
-                        : 'w-0 border-r-0'
+                    ? 'w-80 border-r'
+                    : 'w-0 border-r-0'
                     } bg-[#e8e6df] text-[#2d372e] flex flex-col justify-between border-[#d4d1c8] select-none h-screen shrink-0 overflow-hidden transition-[width] duration-300 ease-in-out`}
             >
 
-                <div className="w-80 min-w-80">
+                <div className="w-80 min-w-80 h-full flex flex-col">
 
                     {/* AURA AI Branding */}
                     <div className="p-5 border-b border-[#dad7cd] flex items-center justify-between">
@@ -324,177 +333,207 @@ export default function Sidebar({
                     </div>
 
                     {/* Conversation History */}
-                    <div className="px-4 space-y-5 overflow-y-auto max-h-[calc(100vh-280px)]">
 
-                        {loading && (
-                            <div className="flex items-center justify-center gap-3 py-10 text-sm text-[#738375]">
+                    {authType === "guest" ? (
 
-                                <Loader2 size={20} className="animate-spin" />
+                        <div className="px-4 py-8 text-center flex-1">
 
-                                Loading conversations...
-
+                            <div className="flex justify-center mb-4">
+                                <MessageSquare size={28} className="text-[#8a9b8c]" />
                             </div>
-                        )}
 
-                        {!loading && error && (
-                            <div className="p-4 text-sm text-red-600 bg-red-50 rounded-xl space-y-3">
+                            <h3 className="text-[#273529] font-semibold text-base mb-2">
+                                Save Your Conversations
+                            </h3>
 
-                                <p>{error}</p>
+                            <p className="text-sm text-[#738375] leading-6 mb-5">
+                                Sign in with Google to save your chat history
+                                and access your previous conversations anytime.
+                            </p>
 
-                                <button
-                                    onClick={fetchThreads}
-                                    className="flex items-center gap-2 text-[#4a7c59] font-medium"
-                                >
+                            <button
+                                onClick={() => window.location.href = `${API_URL}/auth/google`}
+                                className="w-full bg-[#4a7c59] hover:bg-[#3d684a] text-white py-2.5 rounded-lg text-sm font-medium transition"
+                            >
+                                Login with Google
+                            </button>
 
-                                    <RefreshCw size={16} />
+                        </div>
 
-                                    Retry
+                    ) : (
+                        <div className="px-4 space-y-5 flex-1 min-h-0 overflow-y-auto">
 
-                                </button>
+                            {loading && (
+                                <div className="flex items-center justify-center gap-3 py-10 text-sm text-[#738375]">
 
-                            </div>
-                        )}
+                                    <Loader2 size={20} className="animate-spin" />
 
-                        {!loading && !error && filteredThreads.length === 0 && (
-                            <div className="text-center py-10">
+                                    Loading conversations...
 
-                                <MessageSquare
-                                    size={30}
-                                    className="mx-auto mb-3 text-[#a0a99f]"
+                                </div>
+                            )}
+
+                            {!loading && error && (
+                                <div className="p-4 text-sm text-red-600 bg-red-50 rounded-xl space-y-3">
+
+                                    <p>{error}</p>
+
+                                    <button
+                                        onClick={fetchThreads}
+                                        className="flex items-center gap-2 text-[#4a7c59] font-medium"
+                                    >
+
+                                        <RefreshCw size={16} />
+
+                                        Retry
+
+                                    </button>
+
+                                </div>
+                            )}
+
+                            {!loading && !error && filteredThreads.length === 0 && (
+                                <div className="text-center py-10">
+
+                                    <MessageSquare
+                                        size={30}
+                                        className="mx-auto mb-3 text-[#a0a99f]"
+                                    />
+
+                                    <p className="text-sm text-[#738375]">
+
+                                        {searchQuery
+                                            ? "No matching conversations"
+                                            : "No conversations yet"
+                                        }
+
+                                    </p>
+
+                                </div>
+                            )}
+
+                            {!loading && !error && (
+                                <>
+
+                                    {renderGroup(
+                                        "Today",
+                                        groupedThreads.today,
+                                        Terminal
+                                    )}
+
+                                    {renderGroup(
+                                        "Yesterday",
+                                        groupedThreads.yesterday,
+                                        MessageSquare
+                                    )}
+
+                                    {renderGroup(
+                                        "Previous 7 Days",
+                                        groupedThreads.previous7Days,
+                                        Layers
+                                    )}
+
+                                    {renderGroup(
+                                        "Chat History",
+                                        groupedThreads.older,
+                                        MessageSquare
+                                    )}
+
+                                </>
+                            )}
+
+                        </div>
+
+                        // </div>
+                    )}
+
+
+                    {/* Footer */}
+
+                    <div className="w-80 p-4 border-t border-[#dad7cd] space-y-4">
+
+                        {/* User Profile */}
+                        <div className="flex items-center gap-3">
+
+                            {user?.picture ? (
+
+                                <img
+                                    src={user.picture}
+                                    alt="Profile"
+                                    className="w-10 h-10 rounded-full object-cover"
                                 />
 
-                                <p className="text-sm text-[#738375]">
+                            ) : (
 
-                                    {searchQuery
-                                        ? "No matching conversations"
-                                        : "No conversations yet"
-                                    }
+                                <div className="w-10 h-10 rounded-full bg-[#3b5e43] text-white flex items-center justify-center">
+                                    <UserRound size={20} />
+                                </div>
 
+                            )}
+
+                            <div className="flex-1 min-w-0">
+
+                                <p className="text-sm font-semibold text-[#2d372e] truncate">
+                                    {user?.name || "Guest User"}
+                                </p>
+
+                                <p className="text-xs text-[#738375] truncate">
+                                    {user?.email || "Guest Session"}
                                 </p>
 
                             </div>
-                        )}
 
-                        {!loading && !error && (
-                            <>
+                            <button
+                                onClick={onLogout}
+                                title="Logout"
+                                className="text-xs text-red-600 hover:bg-red-50 rounded-lg px-3 py-2"
+                            >
+                                Logout
+                            </button>
 
-                                {renderGroup(
-                                    "Today",
-                                    groupedThreads.today,
-                                    Terminal
-                                )}
+                        </div>
 
-                                {renderGroup(
-                                    "Yesterday",
-                                    groupedThreads.yesterday,
-                                    MessageSquare
-                                )}
+                        {/* Conversation Information */}
+                        <div className="flex items-center justify-between text-sm text-[#526355]">
 
-                                {renderGroup(
-                                    "Previous 7 Days",
-                                    groupedThreads.previous7Days,
-                                    Layers
-                                )}
+                            <div className="flex items-center gap-2">
 
-                                {renderGroup(
-                                    "Chat History",
-                                    groupedThreads.older,
-                                    MessageSquare
-                                )}
+                                <HardDrive size={18} />
 
-                            </>
-                        )}
+                                <span>
+                                    {threads.length} Conversations
+                                </span>
 
-                    </div>
-
-                </div>
-
-                {/* Footer */}
-                
-                <div className="w-80 p-4 border-t border-[#dad7cd] space-y-4">
-
-                    {/* User Profile */}
-                    <div className="flex items-center gap-3">
-
-                        {user?.picture ? (
-
-                            <img
-                                src={user.picture}
-                                alt="Profile"
-                                className="w-10 h-10 rounded-full object-cover"
-                            />
-
-                        ) : (
-
-                            <div className="w-10 h-10 rounded-full bg-[#3b5e43] text-white flex items-center justify-center">
-                                <UserRound size={20} />
                             </div>
 
-                        )}
+                            {authType === "google" && (
+                                <button
+                                    onClick={fetchThreads}
+                                    disabled={loading}
+                                    title="Refresh conversations"
+                                    className="p-2 hover:bg-[#dedbd2] rounded-lg disabled:opacity-50"
+                                >
+                                    <RefreshCw
+                                        size={17}
+                                        className={loading ? "animate-spin" : ""}
+                                    />
+                                </button>
+                            )}
 
-                        <div className="flex-1 min-w-0">
+                            <button
+                                onClick={() => setIsSidebarOpen(false)}
+                                title="Hide sidebar"
+                                className="p-2 hover:bg-[#dedbd2] rounded-lg"
+                            >
 
-                            <p className="text-sm font-semibold text-[#2d372e] truncate">
-                                {user?.name || "Guest User"}
-                            </p>
+                                <SlidersHorizontal size={18} />
 
-                            <p className="text-xs text-[#738375] truncate">
-                                {user?.email || "Guest Session"}
-                            </p>
-
-                        </div>
-
-                        <button
-                            onClick={onLogout}
-                            title="Logout"
-                            className="text-xs text-red-600 hover:bg-red-50 rounded-lg px-3 py-2"
-                        >
-                            Logout
-                        </button>
-
-                    </div>
-
-                    {/* Conversation Information */}
-                    <div className="flex items-center justify-between text-sm text-[#526355]">
-
-                        <div className="flex items-center gap-2">
-
-                            <HardDrive size={18} />
-
-                            <span>
-                                {threads.length} Conversations
-                            </span>
+                            </button>
 
                         </div>
 
-                        <button
-                            onClick={fetchThreads}
-                            disabled={loading}
-                            title="Refresh conversations"
-                            className="p-2 hover:bg-[#dedbd2] rounded-lg disabled:opacity-50"
-                        >
-
-                            <RefreshCw
-                                size={17}
-                                className={loading ? "animate-spin" : ""}
-                            />
-
-                        </button>
-
-                        <button
-                            onClick={() => setIsSidebarOpen(false)}
-                            title="Hide sidebar"
-                            className="p-2 hover:bg-[#dedbd2] rounded-lg"
-                        >
-
-                            <SlidersHorizontal size={18} />
-
-                        </button>
-
                     </div>
-
                 </div>
-
             </aside>
 
             {/* Reopen Sidebar */}

@@ -6,7 +6,7 @@ import remarkGfm from "remark-gfm";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-export default function ChatWindow({ threadId, messages, setMessages }) {
+export default function ChatWindow({ threadId, messages, setMessages}) {
 
   const [loading, setLoading] = useState(false);
 
@@ -92,9 +92,26 @@ export default function ChatWindow({ threadId, messages, setMessages }) {
     <div className="flex-1 overflow-y-auto p-8 space-y-6">
 
       {messages.length === 0 ? (
-        <p className="text-center text-[#738375] text-base">
-          No messages found.
-        </p>
+        <div className="h-full flex flex-col items-center justify-center text-center px-4">
+
+          <div className="w-16 h-16 rounded-2xl bg-[#4a7c59] flex items-center justify-center mb-6 shadow-md">
+            <MessageSquare size={30} className="text-white" />
+          </div>
+
+          <h1 className="text-3xl font-semibold text-[#273529] mb-3">
+            Welcome to Aura AI
+          </h1>
+
+          <p className="text-[#738375] text-base max-w-md leading-7">
+            Your AI-powered research assistant. Ask questions, explore documents,
+            and discover insights through intelligent conversations.
+          </p>
+
+          <p className="mt-8 text-sm text-[#738375]">
+            Start a conversation by typing your message below.
+          </p>
+
+        </div>
       ) : (
 
         messages.map((msg, index) => (
@@ -106,20 +123,19 @@ export default function ChatWindow({ threadId, messages, setMessages }) {
           >
 
             <div
-  className={`markdown-content max-w-[80%] px-6 py-5 rounded-2xl text-base leading-7 shadow-sm ${
-    msg.type === 'human'
-      ? 'bg-[#4a7c59] text-white rounded-br-sm'
-      : 'bg-white/70 text-[#273529] border border-[#ece9e1] rounded-bl-sm'
-  }`}
->
-  {msg.type === 'human' ? (
-    <div className="whitespace-pre-wrap">{msg.text}</div>
-  ) : (
-    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-      {msg.text || ''}
-    </ReactMarkdown>
-  )}
-</div>
+              className={`markdown-content max-w-[80%] px-6 py-5 rounded-2xl text-base leading-7 shadow-sm ${msg.type === 'human'
+                  ? 'bg-[#4a7c59] text-white rounded-br-sm'
+                  : 'bg-white/70 text-[#273529] border border-[#ece9e1] rounded-bl-sm'
+                }`}
+            >
+              {msg.type === 'human' ? (
+                <div className="whitespace-pre-wrap">{msg.text}</div>
+              ) : (
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {msg.text || ''}
+                </ReactMarkdown>
+              )}
+            </div>
 
           </div>
 
