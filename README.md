@@ -16,7 +16,7 @@ Unlike a basic chatbot, AURA AI focuses on building a more complete AI applicati
 ## 📸 Application Screenshots
 
 ### Login Page
-![AURA AI Login](screenshots/login.png)
+[![AURA AI Login](screenshots/login.png)](https://aura-ai-agentic-rag-chatbot-1.onrender.com/)
 
 ### Main Dashboard
 ![AURA AI Dashboard](screenshots/dashboard.png)
